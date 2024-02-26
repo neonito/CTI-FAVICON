@@ -5,6 +5,7 @@ import codecs
 import shodan
 from urllib.parse import urlparse
 import socket
+from bs4 import BeautifulSoup
 
 abuseipdb_api_key = ""
 shodan_api_key = ""
@@ -21,8 +22,7 @@ ascii = r"""
  | \ | | | ____|  / _ \  | \ | | |_ _| |_   _|  / _ \ 
  |  \| | |  _|   | | | | |  \| |  | |    | |   | | | |
  | |\  | | |___  | |_| | | |\  |  | |    | |   | |_| |
- |_| \_| |_____|  \___/  |_| \_| |___|   |_|    \___/ 
- Contact:                                                                                                                                                      
+ |_| \_| |_____|  \___/  |_| \_| |___|   |_|    \___/                                                                                                                                                    
 """
 
 def print_neonito():
@@ -41,14 +41,38 @@ def print_valid_ips(valid_ips):
     else:
         print("No valid IPs found.")
 
+def find_favicon_url(url):
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        for link_tag in soup.find_all('link', rel=['icon', 'shortcut icon']):
+            href = link_tag.get('href', '')
+            if href.lower().endswith('.ico'):
+                return href
+        
+        return None
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching webpage for {url}: {e}")
+        log_info["total_pages_skipped"] += 1
+        return None
+
 def get_favicon_hash(url):
     try:
-        favicon_url = f"{url}/favicon.ico"
-        favicon_response = requests.get(favicon_url)
-        favicon_response.raise_for_status()
-        favicon_content = favicon_response.content
-        favicon_hash = mmh3.hash(codecs.encode(favicon_content, "base64"))
-        return favicon_hash
+        favicon_url = find_favicon_url(url)
+        if favicon_url:
+            if not urlparse(favicon_url).scheme:
+                favicon_url = urlparse(url)._replace(path=favicon_url).geturl()
+            favicon_response = requests.get(favicon_url)
+            favicon_response.raise_for_status()
+            favicon_content = favicon_response.content
+            favicon_hash = mmh3.hash(codecs.encode(favicon_content, "base64"))
+            return favicon_hash
+        else:
+            print(f"No favicon found for {url}")
+            log_info["total_pages_skipped"] += 1
+            return None
     except requests.exceptions.RequestException as e:
         print(f"Error fetching favicon for {url}: {e}")
         log_info["total_pages_skipped"] += 1
@@ -153,6 +177,15 @@ def process_pages(file_path):
                 page_name = extract_domain_name(page_url)
                 save_to_json(page_name, abuseipdb_results, valid_ips)
                 print_valid_ips(valid_ips)
+
+def extract_shodan_info(match):
+    ip_port_info = {
+        "ip": match.get('ip_str', ''),
+        "port": match.get('port', 0),
+        "header": match.get('data', '').splitlines()[0],
+        "name": match.get('hostnames', [''])[0] if match.get('hostnames') else ''
+    }
+    return ip_port_info
 
 def extract_domain_name(url):
     parsed_url = urlparse(url)
