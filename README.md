@@ -12,3 +12,6 @@
   
 **Information from AbuseIPDB and IPData.**
 - For the identified IP addresses, the script leverages AbuseIPDB and IPData services, providing additional context for Threat Intelligence analysis. This includes information about whether an IP is marked as abuse, vpn, proxy, Tor, etc.
+
+**Scan results.**
+- The results of the analysis, along with information, are stored in a JSON file.
