@@ -15,3 +15,46 @@
 
 **Scan results.**
 - The results of the analysis, along with information, are stored in a JSON file.
+
+# How To Use
+
+- Fill the script with the required api keys.
+- Create a txt file named ulrs.txt put the url there.
+- run python3 ctifavion.py
+
+# Example Result
+
+**{
+  "Total Shodan IPs found": 1,
+  "Total pages processed": 1,
+  "Total pages skipped": 0,
+  "Valid IPs": [
+    "127.0.0.1"
+  ],
+  "Data": [
+    {
+      "shodan_result": {
+        "ip": "127.0.0.1",
+        "port": 80,
+        "header": "HTTP/1.1 200 OK",
+        "name": "localhost"
+      },
+      "abuseipdb_result": {},
+      "ipdata_result": {
+        "threat": {
+          "is_tor": false,
+          "is_icloud_relay": false,
+          "is_proxy": false,
+          "is_datacenter": false,
+          "is_anonymous": false,
+          "is_known_attacker": false,
+          "is_known_abuser": false,
+          "is_threat": false,
+          "is_bogon": false,
+          "blocklists": [],
+          "scores": {}
+        }
+      }
+    }
+  ]
+}**
