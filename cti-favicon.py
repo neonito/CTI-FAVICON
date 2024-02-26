@@ -10,7 +10,6 @@ abuseipdb_api_key = ""
 shodan_api_key = ""
 ipdata_api_key = ""
 
-
 log_info = {
     "total_shodan_ips": 0,
     "total_pages_processed": 0,
@@ -22,7 +21,8 @@ ascii = r"""
  | \ | | | ____|  / _ \  | \ | | |_ _| |_   _|  / _ \ 
  |  \| | |  _|   | | | | |  \| |  | |    | |   | | | |
  | |\  | | |___  | |_| | | |\  |  | |    | |   | |_| |
- |_| \_| |_____|  \___/  |_| \_| |___|   |_|    \___/                                                                                                                                                   
+ |_| \_| |_____|  \___/  |_| \_| |___|   |_|    \___/ 
+ Contact:                                                                                                                                                      
 """
 
 def print_neonito():
@@ -52,14 +52,6 @@ def get_favicon_hash(url):
     except requests.exceptions.RequestException as e:
         print(f"Error fetching favicon for {url}: {e}")
         log_info["total_pages_skipped"] += 1
-        return None
-
-def get_internetdb_results(ip):
-    try:
-        result = requests.get(f"https://internetdb.shodan.io/{ip}").json()
-        return result
-    except requests.exceptions.RequestException as e:
-        print(f"InternetDB Error: {e}")
         return None
 
 def get_shodan_results(api_key, query):
@@ -133,7 +125,12 @@ def process_pages(file_path):
                 print(f"Total pages processed: {log_info['total_pages_processed']}")
                 print(f"Total pages skipped: {log_info['total_pages_skipped']}")
 
-                ip_port_info_list = [extract_shodan_info(match) for match in results['matches']]
+                ip_port_info_list = [{
+                    "ip": match.get('ip_str', ''),
+                    "port": match.get('port', 0),
+                    "header": match.get('data', '').splitlines()[0],
+                    "name": match.get('hostnames', [''])[0] if match.get('hostnames') else ''
+                } for match in results['matches']]
 
                 ipdata_results = []
                 abuseipdb_results = []
@@ -156,15 +153,6 @@ def process_pages(file_path):
                 page_name = extract_domain_name(page_url)
                 save_to_json(page_name, abuseipdb_results, valid_ips)
                 print_valid_ips(valid_ips)
-
-def extract_shodan_info(match):
-    ip_port_info = {
-        "ip": match.get('ip_str', ''),
-        "port": match.get('port', 0),
-        "header": match.get('data', '').splitlines()[0],
-        "name": match.get('hostnames', [''])[0] if match.get('hostnames') else ''
-    }
-    return ip_port_info
 
 def extract_domain_name(url):
     parsed_url = urlparse(url)
