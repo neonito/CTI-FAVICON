@@ -23,7 +23,7 @@
 - run python3 ctifavion.py
 
 # Example Result
-`````{
+```{
   "Total Shodan IPs found": 1,
   "Total pages processed": 1,
   "Total pages skipped": 0,
@@ -56,4 +56,4 @@
       }
     }
   ]
-}`````
+}```
