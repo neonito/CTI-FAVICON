@@ -26,7 +26,7 @@ ascii = r"""
  |________|'.__.'_/'.___.'[___][___]  \______.'[___]   \______.' '.__.'  '.__.'_/[___]                                                                                                                                                                                                                             
 """
 
-def print_neonito():
+def print_lucifer():
     print(ascii)
 
 def get_full_url(url):
@@ -228,7 +228,7 @@ def check_ip(ip):
         return False
 
 def main():
-    print_neonito()
+    print_lucifer()
     input_file = 'urls.txt'
     process_pages(input_file)
 
